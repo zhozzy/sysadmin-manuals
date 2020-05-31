@@ -1,5 +1,6 @@
-## Настройка ATS Asterisk на выделенном Сервере Ubuntu 18.04
+## Настройка ATS Asterisk на выделенном Сервере Ubuntu 18.04  
 
+### Установка Asterisk
 Asterisk это бесплатный opensource (с открытым исходным кодом) продукт организации IP-телефонии. Он появился в 2004 году и это была революцию на рынке телефонии. На тот момент если тебе нужно было организовать связь в офисе из 10 сотрудников ты должен был купить Avaya, Panasonic или Samsung минимум за $2000. Asterisk полностью бесплатный.  
 
 Настройка Asterisk непростое дело. Путь звонка (в астере он называется дИалплан) описывается в конфигурационном файле и немного похож на программирование.
@@ -62,7 +63,63 @@ make install раскидает файлы по папкам. Установка
 
 Проверим запуск:
 
-```asterisk -r```
+```sudo asterisk -r```  
+### Установка FreeBPX  
+
+Теперь давай займемся установкой веб-интерфейса для Asterisk - FreePBX. FreePBX дает тоже готовый Live CD (готовый дистрибутив), но в целях обучения нам это не нужно.  
+Идем на страницу скачивания https://www.freepbx.org/downloads/freepbx-distro/. У кнопки скачивания копируем ссылку и дальше качаем дистрибутив.
+
+Установка по оф.документации.  
+https://wiki.freepbx.org/display/FOP/Installing+FreePBX+14+on+Ubuntu+18.04#InstallingFreePBX14onUbuntu18.04-Loginas,orswitchto,theRootUser  
+
+Установка Коннектора ODBC:  
+```wget https://dev.mysql.com/get/Downloads/Connector-ODBC/5.3/mysql-connector-odbc-5.3.14-linux-ubuntu18.04-x86-64bit.tar.gz```  
+```tar -xzvf mysql-connector-odbc-5.3.14-linux-ubuntu18.04-x86-64bit.tar.gz```  
+```mkdir /usr/lib/odbc```  
+```cp mysql-connector-odbc-5.3.14-linux-ubuntu18.04-x86-64bit/lib/* /usr/lib/odbc/```
+
+Дальше по инструкции!  
+
+FreePBX имеет кучу модулей, расширяющих базовый функционал.  
+```sudo fwconsole ma downloadinstall manager```  
+```sudo fwconsole ma downloadinstall asteriskinfo```  
+```sudo fwconsole ma downloadinstall queues```  
+
+Модуль **queues** позволит настраивать входящую очередь звонков.  
+Модуль **asteriskinfo** даст нам возможность отладки настроек в графическом режиме.  Чтобы не залезать на сервер по ssh и не заходить в asterisk -r.  
+От модуля **arimanager** зависит модуль asteriskinfo и поэтому устанавливается перед ним.  
+
+Установщик к сожалению не ставит сервис в автозагрузку. Для этого нам придется еще немного потрудиться. В качестве системы инициализации в debian и ubuntu трудится systemd. Мы напишем под него конфигурацию сервиса freepbx.  
+
+В mc или nano открой файл **/etc/systemd/system/freepbx.service** и добавить:    
+
+*[Unit]*  
+*Description=FreePBX VoIP Server*  
+*After=mariadb.service*  
+
+*[Service]*  
+*Type=oneshot*  
+*RemainAfterExit=yes*  
+*ExecStart=/usr/sbin/fwconsole start -q*  
+*ExecStop=/usr/sbin/fwconsole stop -q*  
+
+*[Install]*  
+*WantedBy=multi-user.target*  
+
+После этого мы можем установить сервис FreePBX в автозагрузку:  
+```systemctl enable freepbx.service```  
+```systemctl start freepbx.service```  
+
+
+
+
+
+
+
+
+
+
+
 
 
 
