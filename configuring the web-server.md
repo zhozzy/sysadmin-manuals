@@ -140,3 +140,7 @@ https://ru.wordpress.org/download/ или прямая ссылка https://ru.w
 Зайди в админку по адресу виртуалка/wp-admin
 
 ***password wordpress admin FXQb3rMABxxfjxE***
+
+![GeneralWebSite](https://user-images.githubusercontent.com/65624428/149674745-c2c7810a-2bfa-479c-a56f-57d8083ea470.png)
+
+
